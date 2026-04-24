@@ -1,0 +1,49 @@
+@model Course
+
+<div class="course-card">
+    <div class="course-thumb">
+        @if (!string.IsNullOrEmpty(Model.ThumbnailUrl))
+        {
+            <img src="@Model.ThumbnailUrl" alt="@Model.Title" />
+        }
+        else
+        {
+            <div class="thumb-placeholder">
+                <i class="fa fa-graduation-cap"></i>
+            </div>
+        }
+        <span class="course-level level-@Model.Level.ToLower()">@Model.Level</span>
+    </div>
+    <div class="course-body">
+        <span class="course-category">@Model.Category</span>
+        <h3 class="course-title">
+            <a asp-controller="Course" asp-action="Details" asp-route-id="@Model.Id">@Model.Title</a>
+        </h3>
+        <p class="course-desc">@(Model.Description.Length > 100 ? Model.Description[..100] + "..." : Model.Description)</p>
+        <div class="course-meta">
+            <div class="course-instructor">
+                <i class="fa fa-user-tie"></i>
+                <span>@Model.Instructor?.FullName</span>
+            </div>
+            <div class="course-rating">
+                @{
+                    var avg = Model.Ratings.Any() ? Model.Ratings.Average(r => r.Stars) : 0;
+                    for (int i = 1; i <= 5; i++)
+                    {
+                        <i class="fa fa-star @(i <= avg ? "star-filled" : "star-empty")"></i>
+                    }
+                    <span>(@Model.Ratings.Count)</span>
+                }
+            </div>
+        </div>
+        <div class="course-footer">
+            <div class="course-stats-sm">
+                <span><i class="fa fa-users"></i> @Model.Enrollments.Count</span>
+                <span><i class="fa fa-book"></i> @Model.Lessons.Count leksione</span>
+            </div>
+            <span class="course-price @(Model.Price == 0 ? "price-free" : "")">
+                @(Model.Price == 0 ? "Falas" : $"€{Model.Price:F2}")
+            </span>
+        </div>
+    </div>
+</div>

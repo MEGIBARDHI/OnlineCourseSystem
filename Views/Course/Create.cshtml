@@ -1,0 +1,72 @@
+@model CourseCreateViewModel
+@{
+    ViewData["Title"] = "Kurs i Ri";
+}
+
+<div class="form-page">
+    <div class="form-page-header">
+        <h1><i class="fa fa-plus-circle"></i> Krijo Kurs të Ri</h1>
+        <p>Plotëso të dhënat e kursit tuaj</p>
+    </div>
+
+    <div class="form-card">
+        <form asp-action="Create" method="post">
+            @Html.AntiForgeryToken()
+            <div asp-validation-summary="ModelOnly" class="validation-summary"></div>
+
+            <div class="form-row">
+                <div class="form-group form-group-lg">
+                    <label asp-for="Title">Titulli i Kursit *</label>
+                    <input asp-for="Title" placeholder="p.sh. Hyrje në Programim me Python" />
+                    <span asp-validation-for="Title" class="field-error"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="Category">Kategoria *</label>
+                    <input asp-for="Category" placeholder="p.sh. Programim, Design, Biznes" />
+                    <span asp-validation-for="Category" class="field-error"></span>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="Description">Përshkrimi *</label>
+                <textarea asp-for="Description" rows="5"
+                          placeholder="Përshkruaj çfarë do të mësojnë studentët..."></textarea>
+                <span asp-validation-for="Description" class="field-error"></span>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label asp-for="ThumbnailUrl">URL e Imazhit (Cover)</label>
+                    <input asp-for="ThumbnailUrl" placeholder="https://..." />
+                </div>
+                <div class="form-group">
+                    <label asp-for="Level">Niveli</label>
+                    <select asp-for="Level">
+                        <option value="Fillestare">Fillestare</option>
+                        <option value="Mesatare">Mesatare</option>
+                        <option value="Avancuar">Avancuar</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label asp-for="Price">Çmimi (€)</label>
+                    <input asp-for="Price" type="number" step="0.01" min="0" placeholder="0 = Falas" />
+                </div>
+            </div>
+
+            <div class="form-check-inline">
+                <label class="switch-label">
+                    <input asp-for="IsPublished" type="checkbox" class="switch-input" />
+                    <span class="switch-toggle"></span>
+                    Publiko menjëherë
+                </label>
+            </div>
+
+            <div class="form-actions">
+                <a asp-controller="Home" asp-action="Dashboard" class="btn-cancel">Anulo</a>
+                <button type="submit" class="btn-primary">
+                    <i class="fa fa-save"></i> Krijo Kursin
+                </button>
+            </div>
+        </form>
+    </div>
+</div>

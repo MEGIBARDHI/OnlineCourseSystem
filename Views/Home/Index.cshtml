@@ -1,0 +1,98 @@
+@{
+    ViewData["Title"] = "Kryefaqja";
+    var featuredCourses = ViewBag.FeaturedCourses as List<Course> ?? new List<Course>();
+    var categories = ViewBag.Categories as List<string> ?? new List<string>();
+}
+
+<section class="hero">
+    <div class="hero-content">
+        <div class="hero-badge">🇦🇱 Platforma #1 Shqipe</div>
+        <h1 class="hero-title">Mëso. Rrit vetveten.<br><span class="accent">Arrij qëllimet.</span></h1>
+        <p class="hero-subtitle">Kurse cilësore nga instruktorë shqipfolës. Nga programimi tek dizajni, nga biznesi tek arti.</p>
+        <div class="hero-actions">
+            <a asp-controller="Course" asp-action="Index" class="btn-hero-primary">
+                Shfleto Kurset <i class="fa fa-arrow-right"></i>
+            </a>
+            @if (!User.Identity!.IsAuthenticated)
+            {
+                <a asp-controller="Account" asp-action="Register" class="btn-hero-ghost">Fillo Falas</a>
+            }
+        </div>
+        <div class="hero-stats">
+            <div class="stat">
+                <span class="stat-num">@ViewBag.TotalCourses+</span>
+                <span class="stat-label">Kurse</span>
+            </div>
+            <div class="stat-divider"></div>
+            <div class="stat">
+                <span class="stat-num">@ViewBag.TotalStudents+</span>
+                <span class="stat-label">Studentë</span>
+            </div>
+            <div class="stat-divider"></div>
+            <div class="stat">
+                <span class="stat-num">@ViewBag.TotalInstructors+</span>
+                <span class="stat-label">Instruktorë</span>
+            </div>
+        </div>
+    </div>
+    <div class="hero-visual">
+        <div class="floating-card card-1">
+            <i class="fa fa-code" style="color:#6ee7b7"></i>
+            <span>Programim</span>
+        </div>
+        <div class="floating-card card-2">
+            <i class="fa fa-palette" style="color:#fbbf24"></i>
+            <span>Design</span>
+        </div>
+        <div class="floating-card card-3">
+            <i class="fa fa-brain" style="color:#a78bfa"></i>
+            <span>AI & ML</span>
+        </div>
+        <div class="hero-circle"></div>
+    </div>
+</section>
+
+@if (categories.Any())
+{
+    <section class="categories-section">
+        <div class="section-container">
+            <h2 class="section-title">Eksploro Kategoritë</h2>
+            <div class="categories-grid">
+                @foreach (var cat in categories)
+                {
+                    <a asp-controller="Course" asp-action="Index" asp-route-category="@cat" class="category-chip">
+                        @cat
+                    </a>
+                }
+            </div>
+        </div>
+    </section>
+}
+
+@if (featuredCourses.Any())
+{
+    <section class="courses-section">
+        <div class="section-container">
+            <div class="section-header">
+                <h2 class="section-title">Kurset më Popullore</h2>
+                <a asp-controller="Course" asp-action="Index" class="see-all">Të gjitha kurset →</a>
+            </div>
+            <div class="courses-grid">
+                @foreach (var course in featuredCourses)
+                {
+                    <partial name="_CourseCard" model="course" />
+                }
+            </div>
+        </div>
+    </section>
+}
+
+<section class="cta-section">
+    <div class="cta-container">
+        <h2>Gati të fillosh?</h2>
+        <p>Bashkohu me mijëra studentë dhe fillo të mësosh sot.</p>
+        <a asp-controller="Account" asp-action="Register" class="btn-cta">
+            Krijo Llogari Falas <i class="fa fa-rocket"></i>
+        </a>
+    </div>
+</section>

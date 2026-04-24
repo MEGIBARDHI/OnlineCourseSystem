@@ -1,0 +1,97 @@
+@model RegisterViewModel
+@{
+    ViewData["Title"] = "Regjistrohu";
+}
+
+<div class="auth-page">
+    <div class="auth-card auth-card-wide">
+        <div class="auth-header">
+            <div class="auth-logo">K</div>
+            <h1>Krijo llogari</h1>
+            <p>Bashkohu me komunitetin tonë</p>
+        </div>
+
+        <form asp-action="Register" method="post">
+            @Html.AntiForgeryToken()
+            <div asp-validation-summary="ModelOnly" class="validation-summary"></div>
+
+            <div class="role-selector">
+                <label class="role-option @(Model.Role == UserRole.Student ? "role-active" : "")">
+                    <input type="radio" name="Role" value="Student"
+                           @(Model.Role == UserRole.Student ? "checked" : "") />
+                    <i class="fa fa-user-graduate"></i>
+                    <span>Student</span>
+                    <small>Mëso kurse</small>
+                </label>
+                <label class="role-option @(Model.Role == UserRole.Instructor ? "role-active" : "")">
+                    <input type="radio" name="Role" value="Instructor"
+                           @(Model.Role == UserRole.Instructor ? "checked" : "") />
+                    <i class="fa fa-chalkboard-teacher"></i>
+                    <span>Instruktor</span>
+                    <small>Mëso të tjerët</small>
+                </label>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label asp-for="FullName">Emri i plotë</label>
+                    <div class="input-wrap">
+                        <i class="fa fa-user"></i>
+                        <input asp-for="FullName" placeholder="Emri Mbiemri" />
+                    </div>
+                    <span asp-validation-for="FullName" class="field-error"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="Email">Email</label>
+                    <div class="input-wrap">
+                        <i class="fa fa-envelope"></i>
+                        <input asp-for="Email" type="email" placeholder="emri@shembull.com" />
+                    </div>
+                    <span asp-validation-for="Email" class="field-error"></span>
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label asp-for="Password">Fjalëkalimi</label>
+                    <div class="input-wrap">
+                        <i class="fa fa-lock"></i>
+                        <input asp-for="Password" type="password" placeholder="Min. 6 karaktere" />
+                    </div>
+                    <span asp-validation-for="Password" class="field-error"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="ConfirmPassword">Konfirmo Fjalëkalimin</label>
+                    <div class="input-wrap">
+                        <i class="fa fa-lock"></i>
+                        <input asp-for="ConfirmPassword" type="password" placeholder="Përsërit fjalëkalimin" />
+                    </div>
+                    <span asp-validation-for="ConfirmPassword" class="field-error"></span>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="Bio">Bio (opsionale)</label>
+                <div class="input-wrap">
+                    <i class="fa fa-info-circle"></i>
+                    <textarea asp-for="Bio" placeholder="Pak fjalë rreth teje..."></textarea>
+                </div>
+            </div>
+
+            <button type="submit" class="btn-auth">Regjistrohu <i class="fa fa-arrow-right"></i></button>
+        </form>
+
+        <div class="auth-footer">
+            <p>Ke llogari? <a asp-action="Login">Hyr këtu</a></p>
+        </div>
+    </div>
+</div>
+
+<script>
+document.querySelectorAll('.role-option input').forEach(radio => {
+    radio.addEventListener('change', () => {
+        document.querySelectorAll('.role-option').forEach(el => el.classList.remove('role-active'));
+        radio.closest('.role-option').classList.add('role-active');
+    });
+});
+</script>

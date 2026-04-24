@@ -1,0 +1,104 @@
+@model InstructorDashboardViewModel
+@{
+    ViewData["Title"] = "Dashboard Instruktor";
+}
+
+<div class="dashboard-container">
+    <div class="dashboard-header">
+        <div class="dash-welcome">
+            <h1>Dashboard <span class="accent">Instruktor</span></h1>
+            <p>Mirëse erdhe, @Model.User.FullName!</p>
+        </div>
+        <a asp-controller="Course" asp-action="Create" class="btn-primary">
+            <i class="fa fa-plus"></i> Kurs i Ri
+        </a>
+    </div>
+
+    <div class="dash-stats">
+        <div class="dash-stat-card">
+            <div class="stat-icon" style="background:#6ee7b720; color:#059669">
+                <i class="fa fa-book"></i>
+            </div>
+            <div>
+                <span class="stat-big">@Model.TotalCourses</span>
+                <span class="stat-lbl">Kurse</span>
+            </div>
+        </div>
+        <div class="dash-stat-card">
+            <div class="stat-icon" style="background:#fbbf2420; color:#d97706">
+                <i class="fa fa-users"></i>
+            </div>
+            <div>
+                <span class="stat-big">@Model.TotalStudents</span>
+                <span class="stat-lbl">Studentë</span>
+            </div>
+        </div>
+        <div class="dash-stat-card">
+            <div class="stat-icon" style="background:#a78bfa20; color:#7c3aed">
+                <i class="fa fa-star"></i>
+            </div>
+            <div>
+                <span class="stat-big">@Model.AverageRating.ToString("F1")</span>
+                <span class="stat-lbl">Vlerësim Mesatar</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="dash-section">
+        <h2 class="dash-section-title"><i class="fa fa-chalkboard-teacher"></i> Kurset e Mia</h2>
+        @if (Model.Courses.Any())
+        {
+            <div class="instructor-courses">
+                @foreach (var course in Model.Courses)
+                {
+                    <div class="instructor-course-row">
+                        <div class="ic-thumb">
+                            @if (!string.IsNullOrEmpty(course.ThumbnailUrl))
+                            {
+                                <img src="@course.ThumbnailUrl" alt="@course.Title" />
+                            }
+                            else
+                            {
+                                <div class="thumb-placeholder-sm"><i class="fa fa-graduation-cap"></i></div>
+                            }
+                        </div>
+                        <div class="ic-info">
+                            <h3>@course.Title</h3>
+                            <div class="ic-meta">
+                                <span class="badge @(course.IsPublished ? "badge-green" : "badge-gray")">
+                                    @(course.IsPublished ? "Publikuar" : "Draft")
+                                </span>
+                                <span><i class="fa fa-users"></i> @course.Enrollments.Count studentë</span>
+                                <span><i class="fa fa-book"></i> @course.Lessons.Count leksione</span>
+                                <span><i class="fa fa-star"></i> @(course.Ratings.Any() ? course.Ratings.Average(r => r.Stars).ToString("F1") : "—")</span>
+                            </div>
+                        </div>
+                        <div class="ic-actions">
+                            <a asp-controller="Course" asp-action="Details" asp-route-id="@course.Id"
+                               class="btn-icon" title="Shiko"><i class="fa fa-eye"></i></a>
+                            <a asp-controller="Course" asp-action="Edit" asp-route-id="@course.Id"
+                               class="btn-icon" title="Ndrysho"><i class="fa fa-edit"></i></a>
+                            <a asp-controller="Lesson" asp-action="Create" asp-route-courseId="@course.Id"
+                               class="btn-icon" title="Shto Leksion"><i class="fa fa-plus"></i></a>
+                            <form asp-controller="Course" asp-action="Delete" asp-route-id="@course.Id"
+                                  method="post" onsubmit="return confirm('Fshi kursin?')">
+                                @Html.AntiForgeryToken()
+                                <button type="submit" class="btn-icon btn-danger-icon" title="Fshi">
+                                    <i class="fa fa-trash"></i>
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                }
+            </div>
+        }
+        else
+        {
+            <div class="empty-state">
+                <i class="fa fa-chalkboard"></i>
+                <h3>Nuk keni kurse ende</h3>
+                <a asp-controller="Course" asp-action="Create" class="btn-primary">Krijo kursin e parë</a>
+            </div>
+        }
+    </div>
+</div>

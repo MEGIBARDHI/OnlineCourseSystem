@@ -1,0 +1,55 @@
+@model ApplicationUser
+@{
+    ViewData["Title"] = "Profili Im";
+}
+
+<div class="form-page">
+    <div class="form-page-header">
+        <h1><i class="fa fa-user-circle"></i> Profili Im</h1>
+    </div>
+
+    <div class="form-card">
+        <div style="display:flex; align-items:center; gap:1.5rem; margin-bottom:2rem; padding-bottom:1.5rem; border-bottom:1px solid var(--border)">
+            <div style="width:72px; height:72px; border-radius:50%; background:var(--accent); color:#0d0f14; display:flex; align-items:center; justify-content:center; font-family:var(--font-head); font-size:2rem; font-weight:800">
+                @Model.FullName.FirstOrDefault()
+            </div>
+            <div>
+                <h2 style="font-family:var(--font-head); font-size:1.4rem; font-weight:700">@Model.FullName</h2>
+                <p style="color:var(--text-muted); font-size:.88rem">@Model.Email</p>
+                <span style="background:rgba(110,231,183,.15); color:var(--accent); padding:.2rem .7rem; border-radius:50px; font-size:.75rem; font-weight:600">
+                    @Model.Role.ToString()
+                </span>
+            </div>
+        </div>
+
+        <div class="form-row">
+            <div>
+                <label style="font-size:.82rem; color:var(--text-muted); display:block; margin-bottom:.3rem">Emri i Plotë</label>
+                <p style="font-weight:500">@Model.FullName</p>
+            </div>
+            <div>
+                <label style="font-size:.82rem; color:var(--text-muted); display:block; margin-bottom:.3rem">Email</label>
+                <p style="font-weight:500">@Model.Email</p>
+            </div>
+        </div>
+
+        @if (!string.IsNullOrEmpty(Model.Bio))
+        {
+            <div style="margin-top:1rem">
+                <label style="font-size:.82rem; color:var(--text-muted); display:block; margin-bottom:.3rem">Bio</label>
+                <p style="color:var(--text-soft)">@Model.Bio</p>
+            </div>
+        }
+
+        <div style="margin-top:1.5rem">
+            <label style="font-size:.82rem; color:var(--text-muted); display:block; margin-bottom:.3rem">Anëtarë nga</label>
+            <p style="color:var(--text-soft)">@Model.CreatedAt.ToString("dd MMMM yyyy")</p>
+        </div>
+
+        <div class="form-actions" style="margin-top:2rem">
+            <a asp-controller="Home" asp-action="Dashboard" class="btn-cancel">
+                ← Dashboard
+            </a>
+        </div>
+    </div>
+</div>

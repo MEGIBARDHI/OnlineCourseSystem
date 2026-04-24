@@ -1,0 +1,167 @@
+@model Enrollment
+@{
+    ViewData["Title"] = "Mëso: " + Model.Course?.Title;
+    var currentLesson = ViewBag.CurrentLesson as Lesson;
+    var lessons = Model.Course?.Lessons.OrderBy(l => l.Order).ToList() ?? new List<Lesson>();
+}
+@{
+    Layout = null;
+}
+<!DOCTYPE html>
+<html lang="sq">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - KursAL</title>
+    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700&family=Inter:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+</head>
+<body class="learn-page">
+
+<div class="learn-layout">
+    <!-- Sidebar -->
+    <aside class="learn-sidebar">
+        <div class="learn-sidebar-header">
+            <a href="/" class="learn-logo">K</a>
+            <div>
+                <h3>@Model.Course?.Title</h3>
+                <div class="learn-progress-mini">
+                    <div class="progress-bar-track">
+                        <div class="progress-bar-fill" style="width:@Model.CompletionPercentage%"></div>
+                    </div>
+                    <span>@Model.CompletionPercentage%</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="lessons-nav">
+            @foreach (var lesson in lessons)
+            {
+                var isCompleted = Model.LessonProgresses.Any(lp => lp.LessonId == lesson.Id && lp.IsCompleted);
+                var isCurrent = currentLesson?.Id == lesson.Id;
+
+                <a asp-controller="Enrollment" asp-action="Learn"
+                   asp-route-id="@Model.Id" asp-route-lessonId="@lesson.Id"
+                   class="lesson-nav-item @(isCurrent ? "lesson-current" : "") @(isCompleted ? "lesson-completed" : "")">
+                    <div class="lesson-nav-icon">
+                        @if (isCompleted)
+                        {
+                            <i class="fa fa-check-circle"></i>
+                        }
+                        else if (isCurrent)
+                        {
+                            <i class="fa fa-play-circle"></i>
+                        }
+                        else
+                        {
+                            <span>@lesson.Order</span>
+                        }
+                    </div>
+                    <div class="lesson-nav-info">
+                        <span class="lesson-nav-title">@lesson.Title</span>
+                        @if (lesson.DurationMinutes > 0)
+                        {
+                            <span class="lesson-nav-dur">@lesson.DurationMinutes min</span>
+                        }
+                    </div>
+                </a>
+            }
+        </div>
+
+        @if (Model.CertificateIssued)
+        {
+            <div class="cert-banner">
+                <i class="fa fa-certificate"></i>
+                <a asp-controller="Enrollment" asp-action="Certificate"
+                   asp-route-enrollmentId="@Model.Id">Shiko Certifikatën</a>
+            </div>
+        }
+    </aside>
+
+    <!-- Main Content -->
+    <main class="learn-main">
+        <div class="learn-topbar">
+            <a asp-controller="Course" asp-action="Details"
+               asp-route-id="@Model.CourseId" class="back-link">
+                <i class="fa fa-arrow-left"></i> Kthehu te Kursi
+            </a>
+        </div>
+
+        @if (currentLesson != null)
+        {
+            <div class="lesson-content">
+                @if (!string.IsNullOrEmpty(currentLesson.VideoUrl))
+                {
+                    <div class="video-wrap">
+                        <iframe src="@currentLesson.VideoUrl" frameborder="0"
+                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                                allowfullscreen></iframe>
+                    </div>
+                }
+
+                <div class="lesson-text-content">
+                    <h1>@currentLesson.Title</h1>
+                    <p>@currentLesson.Description</p>
+
+                    <form asp-controller="Enrollment" asp-action="CompleteLesson" method="post"
+                          class="complete-form">
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" name="enrollmentId" value="@Model.Id" />
+                        <input type="hidden" name="lessonId" value="@currentLesson.Id" />
+                        @{
+                            var done = Model.LessonProgresses.Any(lp => lp.LessonId == currentLesson.Id && lp.IsCompleted);
+                        }
+                        <button type="submit" class="btn-complete @(done ? "btn-completed" : "")">
+                            @if (done)
+                            {
+                                <i class="fa fa-check-circle"></i>
+                                <span>E Përfunduar</span>
+                            }
+                            else
+                            {
+                                <i class="fa fa-circle"></i>
+                                <span>Shëno si të Përfunduar</span>
+                            }
+                        </button>
+                    </form>
+
+                    <!-- Lesson Navigation -->
+                    <div class="lesson-footer-nav">
+                        @{
+                            var idx = lessons.IndexOf(currentLesson);
+                            var prev = idx > 0 ? lessons[idx - 1] : null;
+                            var next = idx < lessons.Count - 1 ? lessons[idx + 1] : null;
+                        }
+                        @if (prev != null)
+                        {
+                            <a asp-controller="Enrollment" asp-action="Learn"
+                               asp-route-id="@Model.Id" asp-route-lessonId="@prev.Id"
+                               class="btn-nav-lesson btn-prev-lesson">
+                                <i class="fa fa-arrow-left"></i> @prev.Title
+                            </a>
+                        }
+                        @if (next != null)
+                        {
+                            <a asp-controller="Enrollment" asp-action="Learn"
+                               asp-route-id="@Model.Id" asp-route-lessonId="@next.Id"
+                               class="btn-nav-lesson btn-next-lesson">
+                                @next.Title <i class="fa fa-arrow-right"></i>
+                            </a>
+                        }
+                    </div>
+                </div>
+            </div>
+        }
+        else
+        {
+            <div class="empty-state" style="margin-top:5rem">
+                <i class="fa fa-film"></i>
+                <h3>Zgjidhni një leksion nga lista</h3>
+            </div>
+        }
+    </main>
+</div>
+
+</body>
+</html>

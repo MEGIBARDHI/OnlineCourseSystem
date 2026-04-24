@@ -1,0 +1,126 @@
+@model StudentDashboardViewModel
+@{
+    ViewData["Title"] = "Dashboard im";
+}
+
+<div class="dashboard-container">
+    <div class="dashboard-header">
+        <div class="dash-welcome">
+            <h1>Mirëse erdhe, <span class="accent">@Model.User.FullName</span>!</h1>
+            <p>Vazhdo mësimin aty ku ke ndaluar.</p>
+        </div>
+        <a asp-controller="Course" asp-action="Index" class="btn-primary">
+            <i class="fa fa-plus"></i> Gjej Kurse të Reja
+        </a>
+    </div>
+
+    <div class="dash-stats">
+        <div class="dash-stat-card">
+            <div class="stat-icon" style="background:#6ee7b720; color:#059669">
+                <i class="fa fa-book-open"></i>
+            </div>
+            <div>
+                <span class="stat-big">@Model.Enrollments.Count()</span>
+                <span class="stat-lbl">Kurse Totale</span>
+            </div>
+        </div>
+        <div class="dash-stat-card">
+            <div class="stat-icon" style="background:#fbbf2420; color:#d97706">
+                <i class="fa fa-spinner"></i>
+            </div>
+            <div>
+                <span class="stat-big">@Model.InProgressCourses</span>
+                <span class="stat-lbl">Në Progres</span>
+            </div>
+        </div>
+        <div class="dash-stat-card">
+            <div class="stat-icon" style="background:#a78bfa20; color:#7c3aed">
+                <i class="fa fa-trophy"></i>
+            </div>
+            <div>
+                <span class="stat-big">@Model.CompletedCourses</span>
+                <span class="stat-lbl">Të Përfunduara</span>
+            </div>
+        </div>
+        <div class="dash-stat-card">
+            <div class="stat-icon" style="background:#f4716320; color:#e63946">
+                <i class="fa fa-heart"></i>
+            </div>
+            <div>
+                <span class="stat-big">@Model.FavoriteCourses.Count()</span>
+                <span class="stat-lbl">Të Preferuara</span>
+            </div>
+        </div>
+    </div>
+
+    @if (Model.Enrollments.Any())
+    {
+        <div class="dash-section">
+            <h2 class="dash-section-title"><i class="fa fa-play-circle"></i> Kurset e Mia</h2>
+            <div class="enrollment-list">
+                @foreach (var enrollment in Model.Enrollments)
+                {
+                    var pct = enrollment.CompletionPercentage;
+                    <div class="enrollment-card">
+                        <div class="enr-thumb">
+                            @if (!string.IsNullOrEmpty(enrollment.Course?.ThumbnailUrl))
+                            {
+                                <img src="@enrollment.Course.ThumbnailUrl" alt="@enrollment.Course.Title" />
+                            }
+                            else
+                            {
+                                <div class="thumb-placeholder-sm"><i class="fa fa-graduation-cap"></i></div>
+                            }
+                        </div>
+                        <div class="enr-info">
+                            <h3>@enrollment.Course?.Title</h3>
+                            <p class="enr-instructor">nga @enrollment.Course?.Instructor?.FullName</p>
+                            <div class="progress-bar-wrap">
+                                <div class="progress-bar-track">
+                                    <div class="progress-bar-fill" style="width:@pct%"></div>
+                                </div>
+                                <span class="progress-pct">@pct%</span>
+                            </div>
+                        </div>
+                        <div class="enr-actions">
+                            @if (enrollment.CertificateIssued)
+                            {
+                                <a asp-controller="Enrollment" asp-action="Certificate"
+                                   asp-route-enrollmentId="@enrollment.Id" class="btn-cert">
+                                    <i class="fa fa-certificate"></i> Certifikata
+                                </a>
+                            }
+                            <a asp-controller="Enrollment" asp-action="Learn"
+                               asp-route-id="@enrollment.Id" class="btn-continue">
+                                @(pct > 0 ? "Vazhdo" : "Fillo") <i class="fa fa-arrow-right"></i>
+                            </a>
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+    }
+
+    @if (Model.FavoriteCourses.Any())
+    {
+        <div class="dash-section">
+            <h2 class="dash-section-title"><i class="fa fa-heart"></i> Të Preferuara</h2>
+            <div class="courses-grid-sm">
+                @foreach (var course in Model.FavoriteCourses)
+                {
+                    <partial name="_CourseCard" model="course" />
+                }
+            </div>
+        </div>
+    }
+
+    @if (!Model.Enrollments.Any())
+    {
+        <div class="empty-state">
+            <i class="fa fa-graduation-cap"></i>
+            <h3>Nuk jeni regjistruar ende në asnjë kurs</h3>
+            <p>Shfletoni kurset tona dhe filloni mësimin sot!</p>
+            <a asp-controller="Course" asp-action="Index" class="btn-primary">Shfleto Kurset</a>
+        </div>
+    }
+</div>

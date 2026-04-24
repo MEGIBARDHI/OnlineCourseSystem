@@ -1,0 +1,54 @@
+@model LessonEditViewModel
+@{
+    ViewData["Title"] = "Ndrysho Leksionin";
+}
+
+<div class="form-page">
+    <div class="form-page-header">
+        <h1><i class="fa fa-edit"></i> Ndrysho Leksionin</h1>
+    </div>
+
+    <div class="form-card">
+        <form asp-action="Edit" method="post">
+            @Html.AntiForgeryToken()
+            <input asp-for="Id" type="hidden" />
+            <input asp-for="CourseId" type="hidden" />
+
+            <div class="form-row">
+                <div class="form-group form-group-lg">
+                    <label asp-for="Title">Titulli *</label>
+                    <input asp-for="Title" />
+                    <span asp-validation-for="Title" class="field-error"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="Order">Rendi</label>
+                    <input asp-for="Order" type="number" min="1" />
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="Description">Përshkrimi *</label>
+                <textarea asp-for="Description" rows="4"></textarea>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group form-group-lg">
+                    <label asp-for="VideoUrl">URL e Videos</label>
+                    <input asp-for="VideoUrl" />
+                </div>
+                <div class="form-group">
+                    <label asp-for="DurationMinutes">Kohëzgjatja (min)</label>
+                    <input asp-for="DurationMinutes" type="number" min="0" />
+                </div>
+            </div>
+
+            <div class="form-actions">
+                <a asp-controller="Course" asp-action="Details" asp-route-id="@Model.CourseId"
+                   class="btn-cancel">Anulo</a>
+                <button type="submit" class="btn-primary">
+                    <i class="fa fa-save"></i> Ruaj
+                </button>
+            </div>
+        </form>
+    </div>
+</div>

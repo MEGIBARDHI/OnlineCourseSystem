@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="sq">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - KursAL</title>
+    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <a class="nav-brand" asp-controller="Home" asp-action="Index">
+                <span class="brand-icon">K</span>
+                <span>KursAL</span>
+            </a>
+            <div class="nav-links">
+                <a asp-controller="Course" asp-action="Index">Kurset</a>
+                @if (User.Identity?.IsAuthenticated == true)
+                {
+                    <a asp-controller="Home" asp-action="Dashboard">Dashboard</a>
+                }
+            </div>
+            <div class="nav-actions">
+                @if (User.Identity?.IsAuthenticated == true)
+                {
+                    <div class="user-menu">
+                        <button class="user-btn" onclick="toggleUserMenu()">
+                            <i class="fa fa-user-circle"></i>
+                            <span>@User.Identity.Name?.Split('@')[0]</span>
+                            <i class="fa fa-chevron-down"></i>
+                        </button>
+                        <div class="user-dropdown" id="userDropdown">
+                            <a asp-controller="Home" asp-action="Dashboard">
+                                <i class="fa fa-gauge"></i> Dashboard
+                            </a>
+                            <a asp-controller="Account" asp-action="Profile">
+                                <i class="fa fa-user"></i> Profili im
+                            </a>
+                            <div class="dropdown-divider"></div>
+                            <form asp-controller="Account" asp-action="Logout" method="post">
+                                @Html.AntiForgeryToken()
+                                <button type="submit"><i class="fa fa-sign-out-alt"></i> Dil</button>
+                            </form>
+                        </div>
+                    </div>
+                }
+                else
+                {
+                    <a asp-controller="Account" asp-action="Login" class="btn-ghost">Hyr</a>
+                    <a asp-controller="Account" asp-action="Register" class="btn-primary">Regjistrohu</a>
+                }
+            </div>
+            <button class="nav-toggle" onclick="toggleNav()"><i class="fa fa-bars"></i></button>
+        </div>
+    </nav>
+
+    @if (TempData["Success"] != null)
+    {
+        <div class="toast-success">
+            <i class="fa fa-check-circle"></i> @TempData["Success"]
+        </div>
+    }
+    @if (TempData["Error"] != null)
+    {
+        <div class="toast-error">
+            <i class="fa fa-exclamation-circle"></i> @TempData["Error"]
+        </div>
+    }
+
+    <main>
+        @RenderBody()
+    </main>
+
+    <footer class="footer">
+        <div class="footer-container">
+            <div class="footer-brand">
+                <span class="brand-icon">K</span>
+                <span class="footer-name">KursAL</span>
+                <p>Platforma shqipe e mësimit online</p>
+            </div>
+            <div class="footer-links">
+                <h4>Navigimi</h4>
+                <a asp-controller="Home" asp-action="Index">Kryefaqja</a>
+                <a asp-controller="Course" asp-action="Index">Kurset</a>
+            </div>
+            <div class="footer-links">
+                <h4>Llogaria</h4>
+                @if (User.Identity?.IsAuthenticated == true)
+                {
+                    <a asp-controller="Home" asp-action="Dashboard">Dashboard</a>
+                }
+                else
+                {
+                    <a asp-controller="Account" asp-action="Login">Hyr</a>
+                    <a asp-controller="Account" asp-action="Register">Regjistrohu</a>
+                }
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2026 KursAL. Të gjitha të drejtat e rezervuara.</p>
+        </div>
+    </footer>
+
+    <script src="~/js/site.js" asp-append-version="true"></script>
+</body>
+</html>

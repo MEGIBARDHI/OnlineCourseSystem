@@ -1,0 +1,308 @@
+@model CourseDetailsViewModel
+@{
+    ViewData["Title"] = Model.Course.Title;
+    var avgRating = Model.Course.Ratings.Any() ? Model.Course.Ratings.Average(r => r.Stars) : 0;
+}
+
+<div class="course-details-page">
+    <!-- Hero Banner -->
+    <div class="course-hero">
+        <div class="course-hero-content">
+            <div class="course-breadcrumb">
+                <a asp-controller="Course" asp-action="Index">Kurset</a>
+                <i class="fa fa-chevron-right"></i>
+                <span>@Model.Course.Category</span>
+            </div>
+            <h1>@Model.Course.Title</h1>
+            <p class="course-hero-desc">@Model.Course.Description</p>
+
+            <div class="course-hero-meta">
+                <div class="hero-rating">
+                    @for (int i = 1; i <= 5; i++)
+                    {
+                        <i class="fa fa-star @(i <= avgRating ? "star-filled" : "star-empty")"></i>
+                    }
+                    <span>@avgRating.ToString("F1") (@Model.Course.Ratings.Count vlerësime)</span>
+                </div>
+                <span class="dot">•</span>
+                <span><i class="fa fa-users"></i> @Model.Course.TotalStudents studentë</span>
+                <span class="dot">•</span>
+                <span><i class="fa fa-book"></i> @Model.Course.TotalLessons leksione</span>
+                <span class="dot">•</span>
+                <span class="level-badge">@Model.Course.Level</span>
+            </div>
+
+            <div class="course-instructor-line">
+                <i class="fa fa-user-tie"></i>
+                <span>Instruktori: <strong>@Model.Course.Instructor?.FullName</strong></span>
+            </div>
+        </div>
+
+        <div class="course-hero-sidebar">
+            <div class="enrollment-box">
+                @if (!string.IsNullOrEmpty(Model.Course.ThumbnailUrl))
+                {
+                    <img src="@Model.Course.ThumbnailUrl" alt="@Model.Course.Title" class="enr-box-img" />
+                }
+                <div class="enr-box-price">
+                    @if (Model.Course.Price == 0)
+                    {
+                        <span class="price-free-big">Falas</span>
+                    }
+                    else
+                    {
+                        <span class="price-big">€@Model.Course.Price.ToString("F2")</span>
+                    }
+                </div>
+
+                @if (User.Identity?.IsAuthenticated == true)
+                {
+                    @if (Model.IsEnrolled)
+                    {
+                        <a asp-controller="Enrollment" asp-action="Learn"
+                           asp-route-id="@Model.UserEnrollment!.Id" class="btn-enroll btn-enrolled">
+                            <i class="fa fa-play"></i> Vazhdo Mësimin
+                        </a>
+                        <div class="progress-mini">
+                            <div class="progress-bar-track">
+                                <div class="progress-bar-fill"
+                                     style="width:@Model.UserEnrollment.CompletionPercentage%"></div>
+                            </div>
+                            <span>@Model.UserEnrollment.CompletionPercentage% përfunduar</span>
+                        </div>
+                    }
+                    else
+                    {
+                        <form asp-controller="Enrollment" asp-action="Enroll" method="post">
+                            @Html.AntiForgeryToken()
+                            <input type="hidden" name="courseId" value="@Model.Course.Id" />
+                            <button type="submit" class="btn-enroll">
+                                <i class="fa fa-graduation-cap"></i> Regjistrohu
+                            </button>
+                        </form>
+                    }
+
+                    <form asp-controller="Course" asp-action="ToggleFavorite" method="post" class="fav-form">
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" name="courseId" value="@Model.Course.Id" />
+                        <button type="submit" class="btn-fav @(Model.IsFavorite ? "fav-active" : "")">
+                            <i class="fa @(Model.IsFavorite ? "fa-heart" : "fa-heart")"></i>
+                            @(Model.IsFavorite ? "Hiq nga të preferuarat" : "Shto te preferuarat")
+                        </button>
+                    </form>
+                }
+                else
+                {
+                    <a asp-controller="Account" asp-action="Login" class="btn-enroll">
+                        <i class="fa fa-sign-in-alt"></i> Hyr për t'u Regjistruar
+                    </a>
+                }
+
+                <div class="enr-box-info">
+                    <div class="enr-info-item">
+                        <i class="fa fa-globe"></i> Shqip
+                    </div>
+                    <div class="enr-info-item">
+                        <i class="fa fa-infinity"></i> Akses i pakufizuar
+                    </div>
+                    <div class="enr-info-item">
+                        <i class="fa fa-certificate"></i> Certifikatë
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="course-content-wrap">
+        <!-- Lessons -->
+        <div class="course-main">
+            @if (Model.Course.Lessons.Any())
+            {
+                <div class="content-card">
+                    <h2><i class="fa fa-list"></i> Leksionet (@Model.Course.TotalLessons)</h2>
+
+                    @if (User.Identity?.IsAuthenticated == true && User.IsInRole("Instructor"))
+                    {
+                        <a asp-controller="Lesson" asp-action="Create"
+                           asp-route-courseId="@Model.Course.Id" class="btn-add-lesson">
+                            <i class="fa fa-plus"></i> Shto Leksion
+                        </a>
+                    }
+
+                    <div class="lesson-list">
+                        @foreach (var lesson in Model.Course.Lessons)
+                        {
+                            var isCompleted = Model.UserEnrollment?.LessonProgresses
+                                .Any(lp => lp.LessonId == lesson.Id && lp.IsCompleted) ?? false;
+
+                            <div class="lesson-item @(isCompleted ? "lesson-done" : "")">
+                                <div class="lesson-num">@lesson.Order</div>
+                                <div class="lesson-info">
+                                    <span class="lesson-title-sm">@lesson.Title</span>
+                                    @if (lesson.DurationMinutes > 0)
+                                    {
+                                        <span class="lesson-dur"><i class="fa fa-clock"></i> @lesson.DurationMinutes min</span>
+                                    }
+                                </div>
+                                <div class="lesson-status">
+                                    @if (isCompleted)
+                                    {
+                                        <i class="fa fa-check-circle" style="color:#059669"></i>
+                                    }
+                                    else if (!string.IsNullOrEmpty(lesson.VideoUrl))
+                                    {
+                                        <i class="fa fa-play-circle" style="color:#6366f1"></i>
+                                    }
+                                </div>
+                                @if (User.Identity?.IsAuthenticated == true &&
+                                    (User.IsInRole("Instructor") || User.IsInRole("Admin")))
+                                {
+                                    <div class="lesson-manage">
+                                        <a asp-controller="Lesson" asp-action="Edit"
+                                           asp-route-id="@lesson.Id" class="btn-icon-xs">
+                                            <i class="fa fa-edit"></i>
+                                        </a>
+                                        <form asp-controller="Lesson" asp-action="Delete"
+                                              asp-route-id="@lesson.Id" method="post"
+                                              onsubmit="return confirm('Fshi leksionin?')">
+                                            @Html.AntiForgeryToken()
+                                            <button type="submit" class="btn-icon-xs btn-danger-xs">
+                                                <i class="fa fa-trash"></i>
+                                            </button>
+                                        </form>
+                                    </div>
+                                }
+                            </div>
+                        }
+                    </div>
+                </div>
+            }
+
+            <!-- Comments -->
+            <div class="content-card">
+                <h2><i class="fa fa-comments"></i> Komentet (@Model.Course.Comments.Count)</h2>
+
+                @if (User.Identity?.IsAuthenticated == true && Model.IsEnrolled)
+                {
+                    <form asp-controller="Course" asp-action="AddComment" method="post" class="comment-form">
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" name="courseId" value="@Model.Course.Id" />
+                        <div class="form-group">
+                            <textarea name="content" placeholder="Shkruaj një koment..." rows="3"></textarea>
+                        </div>
+                        <button type="submit" class="btn-comment">
+                            <i class="fa fa-paper-plane"></i> Publiko
+                        </button>
+                    </form>
+                }
+
+                <div class="comments-list">
+                    @foreach (var comment in Model.Course.Comments.OrderByDescending(c => c.CreatedAt))
+                    {
+                        <div class="comment-item">
+                            <div class="comment-avatar">
+                                @comment.User?.FullName.FirstOrDefault()
+                            </div>
+                            <div class="comment-body">
+                                <div class="comment-header">
+                                    <strong>@comment.User?.FullName</strong>
+                                    <span class="comment-date">@comment.CreatedAt.ToString("dd MMM yyyy")</span>
+                                </div>
+                                <p>@comment.Content</p>
+                            </div>
+                        </div>
+                    }
+                    @if (!Model.Course.Comments.Any())
+                    {
+                        <p class="no-comments">Ende pa komente. Ji i pari!</p>
+                    }
+                </div>
+            </div>
+        </div>
+
+        <!-- Ratings Sidebar -->
+        <div class="course-sidebar">
+            <div class="content-card">
+                <h2><i class="fa fa-star"></i> Vlerësimet</h2>
+
+                <div class="rating-summary">
+                    <div class="rating-big">@avgRating.ToString("F1")</div>
+                    <div class="rating-stars-big">
+                        @for (int i = 1; i <= 5; i++)
+                        {
+                            <i class="fa fa-star @(i <= avgRating ? "star-filled" : "star-empty")"></i>
+                        }
+                    </div>
+                    <p>@Model.Course.Ratings.Count vlerësime</p>
+                </div>
+
+                @if (User.Identity?.IsAuthenticated == true && Model.IsEnrolled)
+                {
+                    <form asp-controller="Course" asp-action="AddRating" method="post" class="rating-form">
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" name="courseId" value="@Model.Course.Id" />
+                        <div class="star-picker" id="starPicker">
+                            @for (int i = 1; i <= 5; i++)
+                            {
+                                <i class="fa fa-star star-pick @(Model.UserRating?.Stars >= i ? "picked" : "")"
+                                   data-val="@i" onclick="pickStar(@i)"></i>
+                            }
+                        </div>
+                        <input type="hidden" name="stars" id="starsInput"
+                               value="@(Model.UserRating?.Stars ?? 0)" />
+                        <textarea name="review" placeholder="Rishikimi juaj (opsionale)"
+                                  rows="3">@Model.UserRating?.Review</textarea>
+                        <button type="submit" class="btn-rate">
+                            @(Model.UserRating != null ? "Përditëso" : "Vlerëso")
+                        </button>
+                    </form>
+                }
+
+                <div class="reviews-list">
+                    @foreach (var rating in Model.Course.Ratings.OrderByDescending(r => r.CreatedAt).Take(5))
+                    {
+                        <div class="review-item">
+                            <div class="review-header">
+                                <strong>@rating.User?.FullName</strong>
+                                <div>
+                                    @for (int i = 1; i <= 5; i++)
+                                    {
+                                        <i class="fa fa-star @(i <= rating.Stars ? "star-filled" : "star-empty")"></i>
+                                    }
+                                </div>
+                            </div>
+                            @if (!string.IsNullOrEmpty(rating.Review))
+                            {
+                                <p>@rating.Review</p>
+                            }
+                        </div>
+                    }
+                </div>
+            </div>
+
+            @if (User.IsInRole("Instructor") || User.IsInRole("Admin"))
+            {
+                <div class="content-card manage-card">
+                    <h3>Menaxho Kursin</h3>
+                    <a asp-controller="Course" asp-action="Edit" asp-route-id="@Model.Course.Id"
+                       class="btn-manage">
+                        <i class="fa fa-edit"></i> Ndrysho Kursin
+                    </a>
+                    <a asp-controller="Lesson" asp-action="Create"
+                       asp-route-courseId="@Model.Course.Id" class="btn-manage">
+                        <i class="fa fa-plus"></i> Shto Leksion
+                    </a>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+<script>
+function pickStar(val) {
+    document.getElementById('starsInput').value = val;
+    document.querySelectorAll('.star-pick').forEach((star, idx) => {
+        star.classList.toggle('picked', idx < val);
+    });
+}
+</script>

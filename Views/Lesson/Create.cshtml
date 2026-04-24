@@ -1,0 +1,61 @@
+@model LessonCreateViewModel
+@{
+    ViewData["Title"] = "Shto Leksion";
+}
+
+<div class="form-page">
+    <div class="form-page-header">
+        <h1><i class="fa fa-film"></i> Shto Leksion të Ri</h1>
+        <p>Shto përmbajtje të re në kurs</p>
+    </div>
+
+    <div class="form-card">
+        <form asp-action="Create" method="post">
+            @Html.AntiForgeryToken()
+            <input asp-for="CourseId" type="hidden" />
+            <div asp-validation-summary="ModelOnly" class="validation-summary"></div>
+
+            <div class="form-row">
+                <div class="form-group form-group-lg">
+                    <label asp-for="Title">Titulli i Leksionit *</label>
+                    <input asp-for="Title" placeholder="p.sh. Variablat dhe Tipat e të Dhënave" />
+                    <span asp-validation-for="Title" class="field-error"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="Order">Rendi</label>
+                    <input asp-for="Order" type="number" min="1" />
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="Description">Përshkrimi *</label>
+                <textarea asp-for="Description" rows="4"
+                          placeholder="Çfarë do të mësohet në këtë leksion..."></textarea>
+                <span asp-validation-for="Description" class="field-error"></span>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group form-group-lg">
+                    <label asp-for="VideoUrl">URL e Videos (YouTube embed ose link)</label>
+                    <input asp-for="VideoUrl"
+                           placeholder="https://www.youtube.com/embed/..." />
+                    <small class="form-hint">
+                        Për YouTube: <code>https://www.youtube.com/embed/VIDEO_ID</code>
+                    </small>
+                </div>
+                <div class="form-group">
+                    <label asp-for="DurationMinutes">Kohëzgjatja (minuta)</label>
+                    <input asp-for="DurationMinutes" type="number" min="0" />
+                </div>
+            </div>
+
+            <div class="form-actions">
+                <a asp-controller="Course" asp-action="Details" asp-route-id="@Model.CourseId"
+                   class="btn-cancel">Anulo</a>
+                <button type="submit" class="btn-primary">
+                    <i class="fa fa-plus"></i> Shto Leksionin
+                </button>
+            </div>
+        </form>
+    </div>
+</div>

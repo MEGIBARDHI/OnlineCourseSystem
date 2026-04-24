@@ -1,0 +1,102 @@
+@model CourseListViewModel
+@{
+    ViewData["Title"] = "Kurset";
+}
+
+<div class="courses-page">
+    <div class="courses-page-header">
+        <h1>Të gjitha Kurset</h1>
+        <p>Gjej kursin e duhur për ty</p>
+    </div>
+
+    <div class="courses-layout">
+        <!-- Sidebar Filters -->
+        <aside class="filter-sidebar">
+            <div class="filter-card">
+                <h3 class="filter-title"><i class="fa fa-filter"></i> Filtro</h3>
+
+                <form method="get" asp-action="Index">
+                    <div class="filter-group">
+                        <label>Kërko</label>
+                        <div class="search-input-wrap">
+                            <i class="fa fa-search"></i>
+                            <input type="text" name="search" value="@Model.SearchTerm"
+                                   placeholder="Kurs, temë..." />
+                        </div>
+                    </div>
+
+                    <div class="filter-group">
+                        <label>Kategoria</label>
+                        <div class="filter-options">
+                            <label class="filter-radio @(string.IsNullOrEmpty(Model.Category) ? "active" : "")">
+                                <input type="radio" name="category" value=""
+                                       @(string.IsNullOrEmpty(Model.Category) ? "checked" : "") />
+                                Të gjitha
+                            </label>
+                            @foreach (var cat in Model.Categories)
+                            {
+                                <label class="filter-radio @(Model.Category == cat ? "active" : "")">
+                                    <input type="radio" name="category" value="@cat"
+                                           @(Model.Category == cat ? "checked" : "") />
+                                    @cat
+                                </label>
+                            }
+                        </div>
+                    </div>
+
+                    <div class="filter-group">
+                        <label>Niveli</label>
+                        <div class="filter-options">
+                            @foreach (var lvl in new[] { "", "Fillestare", "Mesatare", "Avancuar" })
+                            {
+                                <label class="filter-radio @(Model.Level == lvl ? "active" : "")">
+                                    <input type="radio" name="level" value="@lvl"
+                                           @(Model.Level == lvl ? "checked" : "") />
+                                    @(string.IsNullOrEmpty(lvl) ? "Të gjitha" : lvl)
+                                </label>
+                            }
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn-filter">Apliko Filtrin</button>
+                    <a asp-action="Index" class="btn-filter-clear">Pastro</a>
+                </form>
+            </div>
+        </aside>
+
+        <!-- Courses Grid -->
+        <div class="courses-main">
+            @if (!string.IsNullOrEmpty(Model.SearchTerm) || !string.IsNullOrEmpty(Model.Category))
+            {
+                <div class="results-header">
+                    <span>@Model.Courses.Count() rezultate
+                        @if (!string.IsNullOrEmpty(Model.SearchTerm))
+                        {
+                            <span> për "<strong>@Model.SearchTerm</strong>"</span>
+                        }
+                    </span>
+                    <a asp-action="Index">Pastro filtrat ×</a>
+                </div>
+            }
+
+            @if (Model.Courses.Any())
+            {
+                <div class="courses-grid">
+                    @foreach (var course in Model.Courses)
+                    {
+                        <partial name="_CourseCard" model="course" />
+                    }
+                </div>
+            }
+            else
+            {
+                <div class="empty-state">
+                    <i class="fa fa-search"></i>
+                    <h3>Asnjë kurs nuk u gjet</h3>
+                    <p>Provo me fjalë kyçe të tjera ose pastro filtrat.</p>
+                    <a asp-action="Index" class="btn-primary">Shiko të gjitha kurset</a>
+                </div>
+            }
+        </div>
+    </div>
+</div>

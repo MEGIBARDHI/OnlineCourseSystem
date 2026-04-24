@@ -1,0 +1,69 @@
+@model LoginViewModel
+@{
+    ViewData["Title"] = "Hyr";
+}
+
+<div class="auth-page">
+    <div class="auth-card">
+        <div class="auth-header">
+            <div class="auth-logo">K</div>
+            <h1>Mirëse u ktheve!</h1>
+            <p>Hyr në llogarinë tënde</p>
+        </div>
+
+        <form asp-action="Login" method="post">
+            @Html.AntiForgeryToken()
+            <input type="hidden" name="returnUrl" value="@ViewData["ReturnUrl"]" />
+
+            <div asp-validation-summary="ModelOnly" class="validation-summary"></div>
+
+            <div class="form-group">
+                <label asp-for="Email">Email</label>
+                <div class="input-wrap">
+                    <i class="fa fa-envelope"></i>
+                    <input asp-for="Email" type="email" placeholder="emri@shembull.com" />
+                </div>
+                <span asp-validation-for="Email" class="field-error"></span>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="Password">Fjalëkalimi</label>
+                <div class="input-wrap">
+                    <i class="fa fa-lock"></i>
+                    <input asp-for="Password" type="password" placeholder="••••••••" id="passInput" />
+                    <button type="button" class="toggle-pass" onclick="togglePass()">
+                        <i class="fa fa-eye" id="eyeIcon"></i>
+                    </button>
+                </div>
+                <span asp-validation-for="Password" class="field-error"></span>
+            </div>
+
+            <div class="form-check-row">
+                <label class="checkbox-label">
+                    <input asp-for="RememberMe" type="checkbox" />
+                    <span>Mbaj mend</span>
+                </label>
+            </div>
+
+            <button type="submit" class="btn-auth">Hyr <i class="fa fa-arrow-right"></i></button>
+        </form>
+
+        <div class="auth-footer">
+            <p>Nuk ke llogari? <a asp-action="Register">Regjistrohu falas</a></p>
+        </div>
+
+        <div class="demo-creds">
+            <p><strong>Demo:</strong> admin@kurs.al / Admin123!</p>
+            <p>instruktor@kurs.al / Instruktor123!</p>
+        </div>
+    </div>
+</div>
+
+<script>
+function togglePass() {
+    const input = document.getElementById('passInput');
+    const icon = document.getElementById('eyeIcon');
+    input.type = input.type === 'password' ? 'text' : 'password';
+    icon.className = input.type === 'password' ? 'fa fa-eye' : 'fa fa-eye-slash';
+}
+</script>
